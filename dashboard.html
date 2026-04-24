@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Zyoin — Recruitment Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f11;
+    --surface: #18181c;
+    --surface2: #212127;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8e8ec;
+    --text2: #888894;
+    --text3: #555560;
+    --accent: #7c6fff;
+    --accent2: #a594ff;
+    --green: #3ecf8e;
+    --amber: #f5a623;
+    --coral: #ff6b6b;
+    --teal: #38bdf8;
+    --font: 'DM Sans', system-ui, sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── Layout ── */
+  .shell { max-width: 1200px; margin: 0 auto; padding: 28px 24px 60px; }
+
+  /* ── Header ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .wordmark {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .wordmark-logo {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -1px;
+    color: var(--accent2);
+  }
+  .wordmark-sub {
+    font-size: 13px;
+    color: var(--text3);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .qlabel { font-size: 12px; color: var(--text3); margin-right: 4px; }
+  .q-pills { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 30px; padding: 3px; }
+  .q-pill {
+    padding: 6px 18px;
+    border-radius: 24px;
+    border: none;
+    background: transparent;
+    color: var(--text2);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .q-pill.active { background: var(--accent); color: #fff; }
+
+  /* ── KPI strip ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .kpi:hover { border-color: var(--border2); }
+  .kpi-accent {
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .kpi-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; font-weight: 500; }
+  .kpi-num { font-size: 32px; font-weight: 300; line-height: 1; font-family: var(--mono); }
+  .kpi-delta { font-size: 12px; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+  .delta-up { color: var(--green); }
+  .delta-dn { color: var(--coral); }
+
+  /* ── Section title ── */
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text3);
+    font-weight: 500;
+  }
+
+  /* ── BU tabs ── */
+  .bu-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .bu-tab {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .bu-tab:hover { border-color: var(--border2); color: var(--text); }
+  .bu-tab.active { border-color: transparent; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+  }
+  .card + .card, .card + .grid2 { margin-top: 16px; }
+
+  /* ── Funnel ── */
+  .funnel-stage {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .stage-lbl { font-size: 12px; color: var(--text2); width: 76px; text-align: right; flex-shrink: 0; }
+  .stage-track { flex: 1; height: 38px; background: var(--surface2); border-radius: 6px; overflow: hidden; position: relative; }
+  .stage-fill {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+    transition: width .55s cubic-bezier(.4,0,.2,1);
+    position: relative;
+  }
+  .stage-count { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+  .stage-meta { font-size: 11px; opacity: .7; }
+  .stage-pct { font-size: 12px; color: var(--text3); width: 44px; text-align: right; flex-shrink: 0; }
+  .funnel-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  .fleg { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+  .fleg-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+  /* ── Grid layouts ── */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  /* ── Bars (comparison) ── */
+  .cbar-group { margin-bottom: 16px; }
+  .cbar-name { font-size: 12px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
+  .cbar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .cbar-qlabel { font-size: 11px; color: var(--text3); width: 26px; flex-shrink: 0; }
+  .cbar-track { flex: 1; height: 22px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .cbar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; transition: width .4s ease; }
+  .cbar-val { font-size: 11px; font-family: var(--mono); font-weight: 500; }
+
+  /* ── Offer / acceptance chart ── */
+  .rate-row { margin-bottom: 14px; }
+  .rate-top { display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .rate-name { font-size: 12px; font-weight: 500; }
+  .rate-info { font-size: 12px; color: var(--text2); font-family: var(--mono); }
+  .rate-track { height: 26px; background: var(--surface2); border-radius: 5px; overflow: hidden; }
+  .rate-fill { height: 100%; border-radius: 5px; display: flex; align-items: center; padding-left: 10px; transition: width .5s ease; }
+  .rate-pct { font-size: 12px; font-family: var(--mono); font-weight: 500; }
+
+  /* ── Recruiter table ── */
+  .tbl-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 600px; }
+  thead th {
+    text-align: left; padding: 10px 12px;
+    font-size: 11px; font-weight: 500; color: var(--text3);
+    text-transform: uppercase; letter-spacing: .06em;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td { padding: 11px 12px; border-bottom: 1px solid var(--border); transition: background .1s; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--surface2); }
+  .rec-name { font-weight: 500; color: var(--text); }
+  .badge {
+    display: inline-block; padding: 3px 9px; border-radius: 4px;
+    font-size: 11px; font-weight: 500; letter-spacing: .02em;
+  }
+  .b-product { background: rgba(124,111,255,.18); color: var(--accent2); }
+  .b-gcc { background: rgba(62,207,142,.15); color: var(--green); }
+  .b-rpo { background: rgba(245,166,35,.15); color: var(--amber); }
+  .conv-pill {
+    display: inline-block; padding: 3px 9px; border-radius: 4px;
+    font-size: 11px; font-family: var(--mono); font-weight: 500;
+  }
+  .conv-hi { background: rgba(62,207,142,.15); color: var(--green); }
+  .conv-md { background: rgba(245,166,35,.15); color: var(--amber); }
+  .conv-lo { background: rgba(255,107,107,.15); color: var(--coral); }
+  .num { font-family: var(--mono); font-size: 13px; }
+
+  /* ── Trend mini spark ── */
+  .spark-row { display: flex; align-items: center; gap: 6px; }
+  .spark-up::after { content: '↑'; color: var(--green); font-size: 11px; }
+  .spark-dn::after { content: '↓'; color: var(--coral); font-size: 11px; }
+
+  /* ── Footer ── */
+  .footnote { font-size: 11px; color: var(--text3); margin-top: 32px; text-align: center; }
+
+  @media (max-width: 700px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .grid2 { grid-template-columns: 1fr; }
+    .grid3 { grid-template-columns: 1fr; }
+    .stage-lbl { width: 56px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Header -->
+  <div class="topbar">
+    <div class="wordmark">
+      <div class="wordmark-logo">Zyoin</div>
+      <div class="wordmark-sub">Recruitment Intelligence</div>
+    </div>
+    <div class="topbar-right">
+      <span class="qlabel">Period</span>
+      <div class="q-pills">
+        <button class="q-pill active" onclick="setQ('Q3')">Q3 2024</button>
+        <button class="q-pill" onclick="setQ('Q4')">Q4 2024</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI strip -->
+  <div class="kpi-row" id="kpi-row"></div>
+
+  <!-- Funnel -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="section-head">
+      <span class="section-label">Hiring funnel</span>
+      <div class="bu-tabs" id="bu-tabs">
+        <button class="bu-tab active" onclick="setBU('All')">All BUs</button>
+        <button class="bu-tab" onclick="setBU('Product')">Product</button>
+        <button class="bu-tab" onclick="setBU('GCC')">GCC</button>
+        <button class="bu-tab" onclick="setBU('RPO')">RPO</button>
+      </div>
+    </div>
+    <div class="funnel-legend" id="funnel-legend"></div>
+    <div id="funnel-stages"></div>
+  </div>
+
+  <!-- Two charts -->
+  <div class="grid2">
+    <div class="card">
+      <div class="section-head"><span class="section-label">Profiles shared — Q3 vs Q4</span></div>
+      <div id="profiles-chart"></div>
+    </div>
+    <div class="card">
+      <div class="section-head"><span class="section-label">Offer→Joiner rate</span></div>
+      <div id="offer-rate-chart"></div>
+    </div>
+  </div>
+
+  <!-- Recruiter table -->
+  <div class="card">
+    <div class="section-head">
+      <span class="section-label">Recruiter performance — <span id="table-q-label">Q3 2024</span></span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Recruiter</th>
+            <th>BU</th>
+            <th>Profiles</th>
+            <th>Interviews</th>
+            <th>Offers</th>
+            <th>Joiners</th>
+            <th>Conversion</th>
+            <th>QoQ</th>
+          </tr>
+        </thead>
+        <tbody id="rec-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footnote">Data is illustrative — update <code>DATA</code> in the script to use real pipeline figures &nbsp;·&nbsp; Zyoin Internal Use Only</div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════
+   Sample Data
+═══════════════════════════════════════════ */
+const DATA = {
+  Q3: {
+    Product: { profiles: 210, interviews: 98,  offers: 42, joiners: 31 },
+    GCC:     { profiles: 340, interviews: 145, offers: 68, joiners: 54 },
+    RPO:     { profiles: 185, interviews: 72,  offers: 28, joiners: 19 },
+  },
+  Q4: {
+    Product: { profiles: 248, interviews: 120, offers: 55, joiners: 41 },
+    GCC:     { profiles: 390, interviews: 178, offers: 84, joiners: 68 },
+    RPO:     { profiles: 215, interviews: 88,  offers: 36, joiners: 26 },
+  }
+};
+
+const RECRUITERS = [
+  { name: 'Aditi Sharma',  bu: 'Product', Q3: { profiles: 72,  interviews: 34, offers: 15, joiners: 11 }, Q4: { profiles: 88,  interviews: 42, offers: 20, joiners: 15 } },
+  { name: 'Ravi Mehta',    bu: 'Product', Q3: { profiles: 68,  interviews: 31, offers: 13, joiners: 9  }, Q4: { profiles: 78,  interviews: 37, offers: 16, joiners: 12 } },
+  { name: 'Priya Nair',    bu: 'Product', Q3: { profiles: 70,  interviews: 33, offers: 14, joiners: 11 }, Q4: { profiles: 82,  interviews: 41, offers: 19, joiners: 14 } },
+  { name: 'Siddharth K.',  bu: 'GCC',     Q3: { profiles: 115, interviews: 48, offers: 23, joiners: 18 }, Q4: { profiles: 130, interviews: 59, offers: 28, joiners: 23 } },
+  { name: 'Meera Pillai',  bu: 'GCC',     Q3: { profiles: 118, interviews: 50, offers: 24, joiners: 19 }, Q4: { profiles: 135, interviews: 62, offers: 30, joiners: 24 } },
+  { name: 'Ankit Joshi',   bu: 'GCC',     Q3: { profiles: 107, interviews: 47, offers: 21, joiners: 17 }, Q4: { profiles: 125, interviews: 57, offers: 26, joiners: 21 } },
+  { name: 'Divya Menon',   bu: 'RPO',     Q3: { profiles: 93,  interviews: 36, offers: 14, joiners: 10 }, Q4: { profiles: 108, interviews: 44, offers: 18, joiners: 13 } },
+  { name: 'Kartik Rao',    bu: 'RPO',     Q3: { profiles: 92,  interviews: 36, offers: 14, joiners: 9  }, Q4: { profiles: 107, interviews: 44, offers: 18, joiners: 13 } },
+];
+
+const FUNNEL_LABELS = ['Profiles', 'Interviews', 'Offers', 'Joiners'];
+const FUNNEL_KEYS   = ['profiles', 'interviews', 'offers', 'joiners'];
+const FUNNEL_COLORS = ['#7c6fff', '#3ecf8e', '#f5a623', '#38bdf8'];
+const BU_COLOR = { Product: '#7c6fff', GCC: '#3ecf8e', RPO: '#f5a623' };
+const BU_BADGE = { Product: 'b-product', GCC: 'b-gcc', RPO: 'b-rpo' };
+
+let currentQ = 'Q3';
+let currentBU = 'All';
+
+const pct   = (a, b) => b ? Math.round(a / b * 100) : 0;
+const delta  = (a, b) => b ? Math.round((a - b) / b * 100) : 0;
+const sumAll = (q, k)  => Object.values(DATA[q]).reduce((s, d) => s + d[k], 0);
+const prevQ  = q => q === 'Q4' ? 'Q3' : 'Q4';
+
+/* ── KPI strip ── */
+function renderKPI() {
+  const q = currentQ, p = prevQ(q);
+  const defs = [
+    { label: 'Total profiles',  key: 'profiles',   color: '#7c6fff' },
+    { label: 'Interviews',      key: 'interviews',  color: '#3ecf8e' },
+    { label: 'Offers made',     key: 'offers',      color: '#f5a623' },
+    { label: 'Joiners',         key: 'joiners',     color: '#38bdf8' },
+  ];
+  document.getElementById('kpi-row').innerHTML = defs.map(d => {
+    const val = sumAll(q, d.key), pv = sumAll(p, d.key);
+    const dv  = delta(val, pv);
+    const up  = dv >= 0;
+    return `<div class="kpi">
+      <div class="kpi-accent" style="background:${d.color}"></div>
+      <div class="kpi-label">${d.label}</div>
+      <div class="kpi-num" style="color:${d.color}">${val}</div>
+      <div class="kpi-delta ${up ? 'delta-up' : 'delta-dn'}">
+        ${up ? '↑' : '↓'} ${Math.abs(dv)}% vs ${p}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Funnel ── */
+function renderFunnel() {
+  const q = currentQ;
+  const bus = currentBU === 'All' ? ['Product','GCC','RPO'] : [currentBU];
+  const agg = FUNNEL_KEYS.map(k => bus.reduce((s, bu) => s + DATA[q][bu][k], 0));
+  const max = agg[0] || 1;
+
+  // Legend
+  const legHTML = currentBU === 'All'
+    ? bus.map(bu => `<div class="fleg"><div class="fleg-dot" style="background:${BU_COLOR[bu]}"></div>${bu}</div>`).join('')
+    : '';
+  document.getElementById('funnel-legend').innerHTML = legHTML;
+
+  // Stages with stacked BU bars OR single BU
+  let stageHTML = '';
+  FUNNEL_LABELS.forEach((lbl, i) => {
+    const w = pct(agg[i], max);
+    const drop = i === 0 ? '—' : pct(agg[i], agg[i-1]) + '%';
+
+    if (currentBU === 'All') {
+      // Stacked segments per BU
+      const segHTML = bus.map(bu => {
+        const bv = DATA[q][bu][FUNNEL_KEYS[i]];
+        const sw = pct(bv, agg[i]);
+        return `<div style="height:100%;flex:${sw};background:${BU_COLOR[bu]};display:flex;align-items:center;padding:0 6px;min-width:${bv>0?'30px':'0'}">
+          <span style="font-family:var(--mono);font-size:12px;color:#fff;white-space:nowrap;overflow:hidden">${bv}</span>
+        </div>`;
+      }).join('');
+      stageHTML += `<div class="funnel-stage">
+        <div class="stage-lbl">${lbl}</div>
+        <div class="stage-track">
+          <div style="height:100%;width:${w}%;display:flex;border-radius:6px;overflow:hidden;transition:width .55s cubic-bezier(.4,0,.2,1)">${segHTML}</div>
+        </div>
+        <div class="stage-pct">${drop}</div>
+      </div>`;
+    } else {
+      const col = BU_COLOR[currentBU];
+      stageHTML += `<div class="funnel-stage">
+        <div class="stage-lbl">${lbl}</div>
+        <div class="stage-track">
+          <div class="stage-fill" style="width:${w}%;background:${col}">
+            <span class="stage-count" style="color:#fff">${agg[i]}</span>
+          </div>
+        </div>
+        <div class="stage-pct">${drop}</div>
+      </div>`;
+    }
+  });
+  document.getElementById('funnel-stages').innerHTML = stageHTML;
+}
+
+/* ── Profiles comparison chart ── */
+function renderProfilesChart() {
+  const bus = ['Product','GCC','RPO'];
+  const max = Math.max(...bus.map(bu => Math.max(DATA.Q3[bu].profiles, DATA.Q4[bu].profiles)));
+  let html = '';
+  bus.forEach(bu => {
+    const v3 = DATA.Q3[bu].profiles, v4 = DATA.Q4[bu].profiles;
+    html += `<div class="cbar-group">
+      <div class="cbar-name">${bu}</div>
+      <div class="cbar-row">
+        <div class="cbar-qlabel">Q3</div>
+        <div class="cbar-track">
+          <div class="cbar-fill" style="width:${pct(v3,max)}%;background:${BU_COLOR[bu]}88">
+            <span class="cbar-val" style="color:#fff">${v3}</span>
+          </div>
+        </div>
+      </div>
+      <div class="cbar-row">
+        <div class="cbar-qlabel">Q4</div>
+        <div class="cbar-track">
+          <div class="cbar-fill" style="width:${pct(v4,max)}%;background:${BU_COLOR[bu]}">
+            <span class="cbar-val" style="color:#fff">${v4}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('profiles-chart').innerHTML = html;
+}
+
+/* ── Offer rate chart ── */
+function renderOfferChart() {
+  const q = currentQ;
+  const bus = ['Product','GCC','RPO'];
+  let html = '';
+  bus.forEach(bu => {
+    const d = DATA[q][bu];
+    const r = pct(d.joiners, d.offers);
+    html += `<div class="rate-row">
+      <div class="rate-top">
+        <span class="rate-name">${bu}</span>
+        <span class="rate-info">${d.joiners} / ${d.offers} accepted</span>
+      </div>
+      <div class="rate-track">
+        <div class="rate-fill" style="width:${r}%;background:${BU_COLOR[bu]}">
+          <span class="rate-pct" style="color:#fff">${r}%</span>
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('offer-rate-chart').innerHTML = html;
+}
+
+/* ── Recruiter table ── */
+function renderTable() {
+  const q = currentQ, p = prevQ(q);
+  document.getElementById('table-q-label').textContent = q + ' 2024';
+  const rows = RECRUITERS.map(r => {
+    const d = r[q], pd = r[p];
+    const rate = pct(d.joiners, d.profiles);
+    const pRate = pct(pd.joiners, pd.profiles);
+    const rateCls = rate >= 15 ? 'conv-hi' : rate >= 10 ? 'conv-md' : 'conv-lo';
+    const qoq = delta(d.profiles, pd.profiles);
+    const qoqCls = qoq >= 0 ? 'delta-up' : 'delta-dn';
+    return `<tr>
+      <td class="rec-name">${r.name}</td>
+      <td><span class="badge ${BU_BADGE[r.bu]}">${r.bu}</span></td>
+      <td class="num">${d.profiles}</td>
+      <td class="num">${d.interviews}</td>
+      <td class="num">${d.offers}</td>
+      <td class="num">${d.joiners}</td>
+      <td><span class="conv-pill ${rateCls}">${rate}%</span></td>
+      <td class="${qoqCls}" style="font-size:12px;font-family:var(--mono)">${qoq >= 0 ? '+' : ''}${qoq}%</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('rec-tbody').innerHTML = rows;
+}
+
+/* ── State setters ── */
+function setQ(q) {
+  currentQ = q;
+  document.querySelectorAll('.q-pill').forEach((b,i) => b.classList.toggle('active', ['Q3','Q4'][i] === q));
+  renderKPI();
+  renderFunnel();
+  renderOfferChart();
+  renderTable();
+}
+
+function setBU(bu) {
+  currentBU = bu;
+  document.querySelectorAll('.bu-tab').forEach(b => b.classList.toggle('active', b.textContent.trim() === bu));
+  const buColors = { All: '#7c6fff', Product: '#7c6fff', GCC: '#3ecf8e', RPO: '#f5a623' };
+  document.querySelectorAll('.bu-tab.active').forEach(b => {
+    b.style.background = buColors[bu];
+    b.style.color = '#fff';
+  });
+  document.querySelectorAll('.bu-tab:not(.active)').forEach(b => {
+    b.style.background = '';
+    b.style.color = '';
+  });
+  renderFunnel();
+}
+
+/* ── Initial render ── */
+renderKPI();
+renderFunnel();
+renderProfilesChart();
+renderOfferChart();
+renderTable();
+
+// Set initial active color for BU tab
+document.querySelector('.bu-tab.active').style.background = '#7c6fff';
+document.querySelector('.bu-tab.active').style.color = '#fff';
+</script>
+</body>
+</html>
